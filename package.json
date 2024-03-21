@@ -5,15 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=develop node server",
-    "build": "npm run build:client && npm run build:server",
+    "build": "npm run build:client && npm run build:server && npm run build:copy",
+    "build:copy": "cp -p src/index.js  dist",
     "build:test": "vite build --outDir public/static",
     "build:client": "vite build --mode client --outDir public/client",
     "build:server": "vite build --ssr src/entry-server.jsx --outDir dist/server",
-    "build:ssr": "vite build --ssr index.js --outDir dist/ssr",
     "generate": "vite build --outDir dist/static && npm run build:server && node prerender",
     "clean": "rimraf dist && rimraf public/static",
-    "serve": "NODE_ENV=production node server",
-    "start": "NODE_ENV=production node index.js",
+    "start": "NODE_ENV=develop node dist/index.js",
     "debug": "node --inspect-brk server"
   },
   "dependencies": {
