@@ -11,7 +11,26 @@
 ***
 ### Summary
 
-vite + React SPA, file base routing sample
+file base routing, vite + React SPA sample
+
+***
+### build
+
+* build, dev-start
+
+```
+yarn build
+
+#
+yarn dev
+```
+
+***
+* prod-start
+
+```
+yarn start
+```
 
 ***
 ### blog 
