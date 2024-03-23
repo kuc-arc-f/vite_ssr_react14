@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const isTest = process.env.VITEST
@@ -14,14 +13,12 @@ export async function createServer(
   isProd = process.env.NODE_ENV === 'production',
   hmrPort,
 ) {
-  const resolve = (p) => path.resolve(__dirname, p)
-
+  const resolve = (p) => path.resolve(__dirname, p);
   const indexProd = isProd
     ? fs.readFileSync(resolve('dist/client/index.html'), 'utf-8')
-    : ''
-
+    : '';
+  //
   const app = express()
-
   /**
    * @type {import('vite').ViteDevServer}
    */
@@ -56,14 +53,28 @@ export async function createServer(
       }),
     )
   }
-
+  /* API */
+  app.use('/api/*', async (req, res) => {
+    const url = req.originalUrl
+    console.log("ApiUrl=", url);
+//console.log(req);
+    let response, router;
+    //
+    if(url === "/api/test") {
+      response = (await vite.ssrLoadModule('/src/routes/index.ts')).render();
+      console.log(response);
+      return res.json(response);
+    }
+    router = (await vite.ssrLoadModule('/src/api-router.ts')).default;
+    response = await router.route(url, req, res);
+    return res.json(response);
+  });
+  //
   app.use('*', async (req, res) => {
     try {
       const url = req.originalUrl
-
       let template, render
       if (!isProd) {
-        // always read fresh template in dev
         template = fs.readFileSync(resolve('index.html'), 'utf-8')
         template = await vite.transformIndexHtml(url, template)
         render = (await vite.ssrLoadModule('/src/entry-server.jsx')).render
@@ -72,11 +83,8 @@ export async function createServer(
         // @ts-ignore
         render = (await import('./dist/server/entry-server.js')).render
       }
-
       const appHtml = render(url)
-
       const html = template.replace(`<!--app-html-->`, appHtml)
-
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
     } catch (e) {
       !isProd && vite.ssrFixStacktrace(e)
@@ -84,7 +92,6 @@ export async function createServer(
       res.status(500).end(e.stack)
     }
   })
-
   return { app, vite }
 }
 

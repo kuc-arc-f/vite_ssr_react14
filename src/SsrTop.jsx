@@ -6,7 +6,7 @@ import { Routes, Route } from 'react-router-dom';
 //
 export default function Page(){
     return(
-    <div className="App">a
+    <div className="App">Top
     </div>
     )
 }
